@@ -1,0 +1,9 @@
+.navbar.navbar-dark {
+  background-color: #800000 !important; /* Blue navbar */
+  background-image: none !important;
+}
+
+.btn.btn-primary {
+    background-color: #800000 !important;
+    border-color: #800000 !important;
+}
