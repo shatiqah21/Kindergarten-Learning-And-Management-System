@@ -118,23 +118,22 @@ Route::group(['middleware' => 'auth'], function () {
         });
 
         /*************** Learning Material *****************/
-          Route::middleware(['auth', 'teacher'])->prefix('teacher')->group(function () {
-                Route::resource('materials', 'LearningMaterialController')
-                    ->names([
-                        'index'   => 'teacher.materials.index',
-                        'create'  => 'teacher.materials.create',
-                        'store'   => 'teacher.materials.store',
-                        'destroy' => 'teacher.materials.destroy',
-                    ]);
+        Route::middleware(['auth', 'teacher'])->prefix('teacher')->group(function () {
+            Route::resource('materials', 'LearningMaterialController')
+                ->names([
+                    'index'   => 'teacher.materials.index',
+                    'create'  => 'teacher.materials.create',
+                    'store'   => 'teacher.materials.store',
+                    'destroy' => 'teacher.materials.destroy',
+                ]);
 
-                Route::get('materials/{material}/download', 'LearningMaterialController@download')
-                    ->name('teacher.materials.download');
-                // <-- Add this AJAX route
-                Route::get('ajax/teacher_subjects', 'LearningMaterialController@ajaxSubjects')
-                ->name('ajax.teacher_subjects')
-                ->middleware(['auth','teacher']);
+            Route::get('materials/{material}/download', 'LearningMaterialController@download')
+                ->name('teacher.materials.download');
+           
+        });
 
-            });
+      
+
         
 
 
@@ -296,36 +295,28 @@ Route::group(['namespace' => 'MyParent','middleware' => 'my_parent',], function(
             
    
 
-   Route::prefix('parent')->middleware('auth')->group(function() {
+    Route::prefix('parent')->middleware('auth')->group(function() {
 
-        // GET: Show checkout page (Pay Payment)
-        Route::get('/payments/checkout/{payment}', [StripeController::class, 'checkoutPage'])
-            ->name('parent.payments.checkout');
-
-        // POST: Create PaymentIntent
+        // Create multi-child payment & redirect to Stripe
         Route::post('/payments/checkout', [StripeController::class, 'createPayment'])
-            ->name('parent.payments.checkout.process');
+            ->name('parent.payments.checkout.process'); // POST form here
 
-        // show payments
-        Route::get('/payments', [App\Http\Controllers\MyParent\MyController::class, 'showPayments'])
-            ->name('parent.payments.index');
-
-        // success callback
+        // Stripe success callback
         Route::get('/payments/success', [StripeController::class, 'success'])
             ->name('parent.payments.stripe.success');
 
-        // cancel
+        // Stripe cancel callback
         Route::get('/payments/cancel', [StripeController::class, 'cancel'])
             ->name('parent.payments.cancel');
-        
+
+        // Show all payments
+        Route::get('/payments', [App\Http\Controllers\MyParent\MyController::class, 'showPayments'])
+            ->name('parent.payments.index');
+
+        // Receipt
         Route::get('/payments/{payment}/receipt', [App\Http\Controllers\MyParent\MyController::class, 'printReceipt'])
             ->name('parent.payments.receipt');
     });
-
-
-
-
-
 
 
 

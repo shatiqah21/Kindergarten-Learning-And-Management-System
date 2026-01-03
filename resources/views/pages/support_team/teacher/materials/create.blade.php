@@ -12,7 +12,6 @@
     </div>
 
     <div class="card-body">
-        {{-- Validation Errors --}}
         @if($errors->any())
             <div class="alert alert-danger">
                 <ul class="mb-0">
@@ -32,7 +31,10 @@
                 <select name="class_id" id="class_id" class="form-control" required>
                     <option value="">-- Select Class --</option>
                     @foreach($classes as $class)
-                        <option value="{{ $class->id }}">{{ $class->name }}</option>
+                        <option value="{{ $class->id }}" 
+                                {{ ($firstClassId == $class->id) ? 'selected' : '' }}>
+                            {{ $class->name }}
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -42,7 +44,11 @@
                 <label>Subject:</label>
                 <select name="subject_id" id="subject_id" class="form-control" required>
                     <option value="">-- Select Subject --</option>
-                    {{-- Subjects will populate dynamically via AJAX --}}
+                    @foreach($subjects as $subject)
+                        <option value="{{ $subject->id }}" data-class="{{ $subject->my_class_id }}">
+                            {{ $subject->name }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
 
@@ -58,12 +64,13 @@
                 <textarea name="description" class="form-control" rows="3"></textarea>
             </div>
 
-            {{-- File --}}
+            {{-- File Upload --}}
             <div class="form-group">
                 <label>File (pdf, doc, ppt, zip):</label>
                 <input type="file" name="file" class="form-control-file" required>
             </div>
 
+            {{-- Submit --}}
             <button type="submit" class="btn btn-success">
                 <i class="icon-upload"></i> Upload
             </button>
@@ -75,42 +82,33 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
+    // Filter subjects berdasarkan class yang dipilih
+    $('#class_id').on('change', function() {
+        var classId = $(this).val();
 
-    function loadSubjects(classId, selected = '') {
-        if(!classId) {
-            $('#subject_id').html('<option value="">-- Select Subject --</option>');
-            return;
-        }
+        $('#subject_id option').each(function() {
+            var subjectClass = $(this).data('class');
 
-        $.ajax({
-            url: '{{ route("ajax.teacher_subjects") }}',
-            type: 'GET',
-            data: { class_id: classId },
-            success: function(data) {
-                var options = '<option value="">-- Select Subject --</option>';
-                $.each(data, function(key, subject) {
-                    var selectedAttr = (subject.id == selected) ? ' selected' : '';
-                    options += '<option value="'+subject.id+'"'+selectedAttr+'>'+subject.name+'</option>';
-                });
-                $('#subject_id').html(options);
-            },
-            error: function(err) {
-                console.error(err);
-                alert('Could not load subjects. Check console.');
+            // Default option "-- Select Subject --"
+            if (!subjectClass) {
+                $(this).show();
+            } 
+            // Show only subjects assigned to selected class
+            else if (subjectClass == classId) {
+                $(this).show();
+            } 
+            // Hide all others
+            else {
+                $(this).hide();
             }
         });
-    }
 
-    // Load subjects when class changes
-    $('#class_id').change(function() {
-        loadSubjects($(this).val());
+        // Reset dropdown subject ke default
+        $('#subject_id').val('');
     });
 
-    // Optional: pre-load subjects for the first class
-    var firstClass = $('#class_id').val();
-    if(firstClass) {
-        loadSubjects(firstClass);
-    }
+    // Trigger change event on page load untuk firstClassId
+    $('#class_id').trigger('change');
 });
 </script>
 @endsection

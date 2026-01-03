@@ -1,48 +1,55 @@
 @extends('layouts.master')
 @section('page_title', 'Pay Payment')
-@section('content')
 
+@section('content')
 <div class="card">
     <div class="card-header header-elements-inline">
-        <h5 class="card-title">Pay {{ $payment->title }}</h5>
+        <h5 class="card-title">Pay Fees</h5>
     </div>
 
     <div class="card-body">
-        <p>Total Amount: <strong>RM {{ number_format($payment->amount, 2) }}</strong></p>
+        @if(session('flash_danger'))
+            <div class="alert alert-danger">{{ session('flash_danger') }}</div>
+        @endif
 
-        <form id="payment-form">
+        <form action="{{ route('parent.payments.checkout.process') }}" method="POST" id="payment-form">
             @csrf
-            <div id="card-element"></div>
-            <button id="submit" class="btn btn-primary mt-3">Pay Now</button>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Amount (RM)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($children as $child)
+                        <tr>
+                            <td>{{ $child->name }}</td>
+                            <td>
+                                <input type="number" 
+                                       name="children[{{ $loop->index }}][amount]" 
+                                       class="form-control child-amount" 
+                                       value="{{ $child->amount ?? 0 }}" 
+                                       min="0.50" step="0.01" required>
+                                <input type="hidden" name="children[{{ $loop->index }}][student_id]" value="{{ $child->id }}">
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <div class="mb-3">
+                <strong>Total: RM <span id="total-amount">0.00</span></strong>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="icon-credit-card"></i> Pay Now
+            </button>
         </form>
     </div>
 </div>
-
 @endsection
 
 @section('scripts')
-<script src="https://js.stripe.com/v3/"></script>
 <script>
-    const stripe = Stripe("{{ config('services.stripe.key') }}");
-    const elements = stripe.elements();
-    const cardElement = elements.create('card');
-    cardElement.mount('#card-element');
-
-    const form = document.getElementById('payment-form');
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const {error, paymentIntent} = await stripe.confirmCardPayment("{{ $client_secret }}", {
-            payment_method: {
-                card: cardElement,
-            }
-        });
-
-        if(error){
-            alert(error.message);
-        } else {
-            alert("Payment Successful!");
-            window.location.href = "{{ route('parent.payments.index') }}";
-        }
-    });
-</script>
-@endsection

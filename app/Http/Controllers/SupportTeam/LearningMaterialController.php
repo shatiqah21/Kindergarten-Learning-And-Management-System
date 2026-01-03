@@ -25,21 +25,6 @@ class LearningMaterialController extends Controller
         return view('pages.support_team.teacher.materials.index', compact('materials'));
     }
 
-   public function ajaxSubjects(Request $request)
-    {
-        $classId = $request->class_id;
-
-        if (!$classId) return response()->json([]);
-
-        // Fetch subjects assigned to the logged-in teacher for this class
-        $subjects = Subject::where('teacher_id', auth()->id())
-                        ->where('my_class_id', $classId)
-                        ->get(['id', 'name']);
-
-        return response()->json($subjects);
-    }
-
-
 
     // Paparkan form upload
     public function create()
@@ -49,18 +34,24 @@ class LearningMaterialController extends Controller
             $q->where('teacher_id', auth()->id());
         })->get();
 
-        // If there is at least one class, preload subjects for first class
+        // Preload subjects for first class (optional, boleh pilih class pertama)
         $firstClassId = $classes->first()->id ?? null;
+
         $subjects = collect();
 
-        if($firstClassId){
+        if ($firstClassId) {
             $subjects = Subject::where('teacher_id', auth()->id())
                             ->where('my_class_id', $firstClassId)
                             ->get();
         }
 
-        return view('pages.support_team.teacher.materials.create', compact('classes', 'subjects', 'firstClassId'));
+        return view(
+            'pages.support_team.teacher.materials.create',
+            compact('classes', 'subjects', 'firstClassId')
+        );
     }
+
+
 
    
 
