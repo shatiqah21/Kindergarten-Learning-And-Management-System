@@ -262,6 +262,16 @@
                             <a href="{{ route('my_children') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['my_children',]) ? 'active' : '' }}"><i class="icon-users"></i> <span>My Children</span></a>
                         </li>
 
+                         <li class="nav-item">
+                            <a href="{{ route('parent.teachers.index') }}" 
+                            class="nav-link {{ Route::currentRouteName() == 'parent.teachers.index' ? 'active' : '' }}">
+                                <i class="icon-user-tie"></i> 
+                                <span>Teachers</span>
+                            </a>
+                        </li>
+
+
+
                             <li class="nav-item">
                                 <a href="{{ route('parent.timetable.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['parent.timetable.index',]) ? 'active' : '' }}"><i class="icon-calendar"></i> <span>Timetable</span></a>
                             </li>

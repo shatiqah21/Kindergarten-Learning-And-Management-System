@@ -97,10 +97,11 @@
         <table class="td-left" style="font-size: 16px" width="100%" cellspacing="2" cellpadding="2">
            <thead>
            <tr>
-               <td class="bold">Date</td>
-               <td class="bold">Amount Paid <del style="text-decoration-style: double">N</del></td>
-               <td class="bold">Balance <del style="text-decoration-style: double">N</del></td>
-           </tr>
+                <td class="bold">Date</td>
+                <td class="bold">Amount Paid (RM)</td>
+                <td class="bold">Balance (RM)</td>
+            </tr>
+
            </thead>
             <tbody>
             @foreach($receipts as $r)

@@ -32,29 +32,60 @@ class PaymentController extends Controller
         $this->middleware('teamAccount');
     }
 
-    public function index()
+   public function index()
     {
         $d['selected'] = false;
+
+        // Get all years that have payments
         $d['years'] = $this->pay->getPaymentYears();
 
-        return view('pages.support_team.payments.index', $d);
-    }
+        // Default year = current session/year
+        $currentYear = Qs::getCurrentSession(); // or use now()->year if Qs not available
+        $d['year'] = $currentYear;
 
-    public function show($year)
-    {
-        $d['payments'] = $p = $this->pay->getPayment(['year' => $year])->get();
-
-        if(($p->count() < 1)){
-            return Qs::goWithDanger('payments.index');
+        // If there are payments for current year, select it
+        $paymentsForCurrentYear = $this->pay->getPayment(['year' => $currentYear])->get();
+        if($paymentsForCurrentYear->count() > 0){
+            $d['payments'] = $paymentsForCurrentYear;
+            $d['selected'] = true;
+        } else {
+            $d['payments'] = collect(); // empty collection
         }
 
-        $d['selected'] = true;
+        // Load all classes for the tabs
         $d['my_classes'] = $this->my_class->all();
-        $d['years'] = $this->pay->getPaymentYears();
-        $d['year'] = $year;
 
         return view('pages.support_team.payments.index', $d);
     }
+
+
+    public function show($year = null)
+    {
+        // Use current session/year if none selected
+        $year = $year ?? $this->year;
+
+        $payments = $this->pay->getPayment(['year' => $year])->get();
+        $my_classes = $this->my_class->all();
+        $years = $this->pay->getPaymentYears();
+
+        $selected = $payments->count() > 0;
+
+        // If no payments for selected year, fall back to current session
+        if (!$selected && $year != $this->year) {
+            $year = $this->year;
+            $payments = $this->pay->getPayment(['year' => $year])->get();
+            $selected = $payments->count() > 0;
+        }
+
+        $message = $payments->count() < 1
+            ? "No payments found for $year session."
+            : null;
+
+        return view('pages.support_team.payments.index', compact(
+            'payments', 'my_classes', 'years', 'year', 'selected', 'message'
+        ));
+    }
+
 
     public function select_year(Request $req)
     {
@@ -202,10 +233,15 @@ class PaymentController extends Controller
         $data = $req->all();
         $data['year'] = $this->year;
         $data['ref_no'] = Pay::genRefCode();
+
+        // ✅ Set default status
+        $data['status'] = 'active';
+
         $this->pay->create($data);
 
         return Qs::jsonStoreOk();
     }
+
 
     public function edit($id)
     {

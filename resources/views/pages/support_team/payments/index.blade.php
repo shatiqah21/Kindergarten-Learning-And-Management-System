@@ -19,9 +19,13 @@
                                 <label for="year" class="col-form-label font-weight-bold">Select Year <span class="text-danger">*</span></label>
                                 <select data-placeholder="Select Year" required id="year" name="year" class="form-control select">
                                     @foreach($years as $yr)
-                                        <option {{ ($selected && $year == $yr->year) ? 'selected' : '' }} value="{{ $yr->year }}">{{ $yr->year }}</option>
+                                        <option value="{{ $yr->year }}"
+                                            {{ $year == $yr->year ? 'selected' : '' }}>
+                                            {{ $yr->year }}
+                                        </option>
                                     @endforeach
                                 </select>
+
                             </div>
                         </div>
 
@@ -84,10 +88,10 @@
                             <td>{{ $p->ref_no }}</td>
                             <td>{{ $p->my_class_id ? $p->my_class->name : '' }}</td>
                             <td>
-                                @if($p->status == 'paid')
-                                    <span class="badge badge-success">Paid</span>
+                                @if($p->status == 'active')
+                                    <span class="badge badge-success">Active</span>
                                 @else
-                                    <span class="badge badge-warning">Pending</span>
+                                    <span class="badge badge-warning">Inactive</span>
                                 @endif
                             </td>
                             <td>{{ $p->description }}</td>

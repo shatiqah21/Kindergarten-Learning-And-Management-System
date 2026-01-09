@@ -71,17 +71,21 @@ class EventController extends Controller
   public function getEvents()
     {
         $events = Event::all()->map(function($event) {
+            $start = \Carbon\Carbon::parse($event->start_date)->format('d M Y H:i');
+            $end   = \Carbon\Carbon::parse($event->end_date)->format('d M Y H:i');
+
             return [
                 'id'    => $event->id,
-                'title' => $event->title,
-                'desc'  => $event->description??'',
+                'title' => $event->title . "\n" . $start . ' - ' . $end, // add timing to title
                 'start' => $event->start_date,
                 'end'   => $event->end_date,
-                'color' => $event->color ?? 'rgba(59, 131, 108, 1)',
+                'color' => $event->color ?? '#8FBC8F',
             ];
         });
+
         return response()->json($events, 200, [], JSON_PRETTY_PRINT);
     }
+
 
    
 

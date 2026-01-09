@@ -17,6 +17,7 @@ use App\Models\TimeTableRecord;
 use App\Models\Mark;
 use PDF;
 use App\Helpers\Qs;
+use App\User;
 
 
 class MyController extends Controller
@@ -34,6 +35,25 @@ class MyController extends Controller
             ->get();
 
         return view('pages.parent.children', $data);
+    }
+
+    public function viewTeachers()
+    {
+        // Ambil semua teacher
+        $teachers = User::where('user_type', 'teacher')->get();
+
+        return view('pages.parent.teachers.index', compact('teachers'));
+    }
+
+    public function teacherProfile($id)
+    {
+        $teacher = User::where('user_type', 'teacher')->findOrFail($id);
+
+        // Optional: ambil subjects & classes dia ajar
+        $subjects = $teacher->subjects ?? collect(); // pastikan relation 'subjects' wujud
+        $classes = $teacher->classes ?? collect();   // pastikan relation 'classes' wujud
+
+        return view('pages.parent.teachers.profile', compact('teacher','subjects','classes'));
     }
 
 
@@ -320,7 +340,7 @@ class MyController extends Controller
                     ->firstOrFail();
 
         // Generate PDF
-        $pdf = \PDF::loadView('pages.parent.payments.receipt', compact('payment'))
+        $pdf = PDF::loadView('pages.parent.payments.receipt', compact('payment'))
                 ->setPaper('A4', 'portrait');
 
         // Download or display

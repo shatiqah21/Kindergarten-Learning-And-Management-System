@@ -22,8 +22,8 @@
                         <th>#</th>
                         <th>Title</th>
                         <th>Pay_Ref</th>
-                        <th>Amount</th>
-                        <th>Paid</th>
+                        <th>Amount (RM)</th>
+                        <th>Paid (RM)</th>
                         <th>Balance</th>
                         <th>Pay Now</th>
                         <th>Receipt_No</th>
@@ -56,7 +56,7 @@
                                      <input min="1" max="{{ $uc->balance ?: $uc->payment->amount }}" id="val-{{ Qs::hash($uc->id) }}" class="form-control" required placeholder="Pay Now" title="Pay Now" name="amt_paid" type="number">
                                  </div>
                                  <div class="col-md-5">
-                                     <button data-text="Pay" class="btn btn-danger" type="submit">Pay <i class="icon-paperplane ml-2"></i></button>
+                                     <button data-text="Pay" class="btn btn-danger" type="submit">Pay</i></button>
                                  </div>
                              </div>
                                 </form>

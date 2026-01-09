@@ -24,11 +24,19 @@
                             <div class="col-lg-9">
                                 <select data-placeholder="Choose..." required name="current_session" id="current_session" class="select-search form-control">
                                     <option value=""></option>
-                                    @for($y=date('Y', strtotime('- 3 years')); $y<=date('Y', strtotime('+ 1 years')); $y++)
-                                        <option {{ ($s['current_session'] == (($y-=1).'-'.($y+=1))) ? 'selected' : '' }}>{{ ($y-=1).'-'.($y+=1) }}</option>
+
+                                    @for ($year = date('Y') - 3; $year <= date('Y') + 1; $year++)
+                                        @php
+                                            $session = $year . '/' . ($year + 1);
+                                        @endphp
+                                        <option value="{{ $session }}"
+                                            {{ (isset($s['current_session']) && $s['current_session'] == $session) ? 'selected' : '' }}>
+                                            {{ $session }}
+                                        </option>
                                     @endfor
                                 </select>
                             </div>
+
                         </div>
                         <div class="form-group row">
                             <label class="col-lg-3 col-form-label font-weight-semibold">School Acronym</label>
@@ -86,17 +94,22 @@
                         </div>
                 </div>
                 <div class="col-md-6">
-                    {{--Fees--}}
+                {{--Fees--}}
                <fieldset>
                    <legend><strong>Next Term Fees</strong></legend>
                    @foreach($class_types as $ct)
-                   <div class="form-group row">
-                       <label class="col-lg-3 col-form-label font-weight-semibold">{{ $ct->name }}</label>
-                       <div class="col-lg-9">
-                           <input class="form-control" value="{{ $s['next_term_fees_'.strtolower($ct->code)] }}" name="next_term_fees_{{ strtolower($ct->code) }}" placeholder="{{ $ct->name }}" type="text">
-                       </div>
-                   </div>
-                       @endforeach
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label font-weight-semibold">{{ $ct->name }}</label>
+                        <div class="col-lg-9">
+                            <input class="form-control"
+                                value="{{ $s['next_term_fees_'.strtolower($ct->code)] ?? '' }}"
+                                name="next_term_fees_{{ strtolower($ct->code) }}"
+                                placeholder="{{ $ct->name }}"
+                                type="text">
+                        </div>
+                    </div>
+                    @endforeach
+
                </fieldset>
                     <hr class="divider">
 

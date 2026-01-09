@@ -65,8 +65,30 @@
                                 <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
                                 <td>{{ $s->user->name }}</td>
                                 <td>{{ $s->adm_no }}</td>
-                                <td>{{ $latestPayment ? ucfirst($latestPayment->method) : '-' }}</td>
-                                <td>{{ $latestPayment ? ucfirst($latestPayment->status) : '-' }}</td>
+                               <td>
+                                    @if($latestPayment)
+                                        {{ ucfirst($latestPayment->method) }}
+                                    @else
+                                        <span class="badge badge-info">Cash</span>
+                                    @endif
+                                </td>
+
+                                <td>
+                                    @if($latestPayment)
+                                        @if($latestPayment->status == 'active')
+                                            <span class="badge badge-success">Active</span>
+                                        @elseif($latestPayment->status == 'inactive')
+                                            <span class="badge badge-secondary">Inactive</span>
+                                        @elseif($latestPayment->status == 'paid')
+                                            <span class="badge badge-success">Paid</span>
+                                        @else
+                                            <span class="badge badge-warning">{{ ucfirst($latestPayment->status) }}</span>
+                                        @endif
+                                    @else
+                                        <span class="badge badge-success">Active</span>
+                                    @endif
+                                </td>
+
                                 <td>
                                     <div class="dropdown">
                                         <a href="#" class="btn btn-danger" data-toggle="dropdown"> Manage Payments <i class="icon-arrow-down5"></i>

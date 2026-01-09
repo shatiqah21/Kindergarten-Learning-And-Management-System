@@ -8,6 +8,7 @@ use App\Models\Event;
 use App\Models\StudentRecord;
 use App\Models\Attendance;
 use App\Models\Section;
+use App\User;
 
 class HomeController extends Controller
 {
@@ -57,31 +58,15 @@ class HomeController extends Controller
                     'end'   => $event->end_date,
                 ];
             });
-        } else {
-            // Default empty values to prevent errors in Blade
-            $d['users'] = collect();
+        } elseif(Qs::userIsTeacher() || Qs::userIsParent()) {
+            $d['totalStudents'] = User::where('user_type','student')->count();
+            $d['totalTeachers'] = User::where('user_type','teacher')->count();
+            $d['totalParents']  = User::where('user_type','parent')->count();
+
             $d['events'] = collect();
         }
 
-        // Attendance Overview
-        // Check if user is admin
-        if(Qs::userIsTeamSAT()){
-            $d['sections'] = Section::with('students.user')->get(); // ambil semua section
-        }
-
-        // Attendance overview for today
-        $d['attendance'] = [
-            'present' => StudentRecord::whereHas('attendances', function($q){
-                $q->whereDate('date', now())->where('status','present');
-            })->count(),
-            'absent'  => StudentRecord::whereHas('attendances', function($q){
-                $q->whereDate('date', now())->where('status','absent');
-            })->count(),
-            'late'    => StudentRecord::whereHas('attendances', function($q){
-                $q->whereDate('date', now())->where('status','late');
-            })->count(),
-        ];
-
+        
         return view('pages.support_team.dashboard', $d);
     }
 

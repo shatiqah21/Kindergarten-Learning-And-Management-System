@@ -107,12 +107,17 @@ Route::group(['middleware' => 'auth'], function () {
 
             /*************** Teacher Timetable *****************/
           Route::resource('teacher_timetables', 'TeacherTimetableController'::class)->middleware(['auth', 'teamSA']);
-          Route::get('timetables/teacher-timetables/pdf', [TeacherTimetableController::class, 'downloadPdf'])->name('teacher_timetables.pdf')->middleware(['auth', 'teamSA']);
+          Route::get('timetables/download-pdf', [TeacherTimetableController::class, 'adminDownloadPdf'])
+            ->name('teacher_timetables.admin_download_pdf')
+            ->middleware(['auth','teamSA']); // only admin
 
           /*************** Teacher Timetable ONLY VIEW *****************/
            Route::get('timetables-teacher/view', [TeacherTimetableController::class, 'teacherView'])->name('teacher.timetables.view')
             ->middleware(['auth']); // No admin middleware
-
+            // Teacher timetable PDF download
+            Route::get('timetables-teacher/download-pdf', [TeacherTimetableController::class, 'teacherDownloadPdf'])
+            ->name('teacher.timetables.download_pdf')
+            ->middleware('auth');
 
 
         });
@@ -275,6 +280,13 @@ Route::group(['namespace' => 'SuperAdmin','middleware' => 'super_admin', 'prefix
 Route::group(['namespace' => 'MyParent','middleware' => 'my_parent',], function(){
 
     Route::get('/my_children', 'MyController@children')->name('my_children');
+
+    Route::middleware(['auth'])->group(function() {
+        Route::get('/teachers', [MyController::class, 'viewTeachers'])
+            ->name('parent.teachers.index');
+        Route::get('/teachers/{id}', [MyController::class, 'teacherProfile'])->name('parent.teachers.profile');
+    });
+
 
     Route::middleware(['auth'])->group(function () {
         Route::get('/parent/timetable', [MyController::class, 'timetable'])

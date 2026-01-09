@@ -162,10 +162,16 @@ class UserController extends Controller
 
         $data['user'] = $this->user->find($user_id);
 
-        /* Prevent Other Students from viewing Profile of others*/
-        if(Auth::user()->id != $user_id && !Qs::userIsTeamSAT() && !Qs::userIsMyChild(Auth::user()->id, $user_id)){
+       $auth_user_type = Auth::user()->usertype ?? Auth::user()->user_type;
+
+        if(Auth::user()->id != $user_id
+        && !Qs::userIsTeamSAT()
+        && !($auth_user_type == 'parent' && $data['user']->user_type == 'teacher')
+        && !Qs::userIsMyChild(Auth::user()->id, $user_id))
+        {
             return redirect(route('dashboard'))->with('pop_error', __('msg.denied'));
         }
+
 
         return view('pages.support_team.users.show', $data);
     }
