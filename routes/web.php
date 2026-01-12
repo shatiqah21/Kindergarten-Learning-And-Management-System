@@ -294,16 +294,42 @@ Route::group(['namespace' => 'MyParent','middleware' => 'my_parent',], function(
          Route::get('/parent/timetable/pdf', [MyController::class, 'downloadPDF'])
         ->name('parent.timetable.pdf');
     });
-    Route::get('/materials', 'MyController@materials')->name('parent.materials.index');
-    Route::get('materials/download/{id}', [LearningMaterialController::class, 'download'])
-    ->name('materials.parent.download');
+
+    Route::prefix('parent')->middleware(['auth'])->group(function() {
+
+        // List all learning materials
+        Route::get('/materials', [MyController::class, 'materials'])
+            ->name('parent.materials.index');
+
+        // Download a specific material by ID
+        Route::get('/materials/download/{id}', [MyController::class, 'download'])
+            ->name('materials.parent.download');
+
+    });
+
+    
+
     Route::get('/events', 'MyController@events')->name('parent.events.index');
-    Route::get('/exam', 'MyController@exam')->name('parent.exam.index');
-    Route::get('/exam/{student_id}', 'MyController@showMarksheet')->name('parent.exam.show');
-    Route::get('/marksheet', [App\Http\Controllers\MyParent\MyController::class, 'marksheet'])
-        ->name('marksheet');
-    Route::get('/{exam}', [App\Http\Controllers\MyParent\MyController::class, 'showMarksheet'])
-        ->name('exam.show');
+    
+    // Parent Exam Routes
+    Route::prefix('exam')->group(function() {
+
+        // List all exams
+        Route::get('/', 'MyController@exam')->name('parent.exam.index');
+
+        // Show marksheet for specific student
+        Route::get('/student/{student_id}', 'MyController@showMarksheet')->name('parent.exam.show');
+
+        // Show marksheet (generic)
+        Route::get('/marksheet', [App\Http\Controllers\MyParent\MyController::class, 'marksheet'])
+            ->name('marksheet');
+
+        // Wildcard exam route (optional, last in group)
+        Route::get('/view/{exam}', [App\Http\Controllers\MyParent\MyController::class, 'showMarksheet'])
+            ->name('exam.show');
+
+    });
+
             
    
 

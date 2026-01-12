@@ -18,6 +18,7 @@ use App\Models\Mark;
 use PDF;
 use App\Helpers\Qs;
 use App\User;
+use Illuminate\Support\Facades\Storage;
 
 
 class MyController extends Controller
@@ -166,9 +167,28 @@ class MyController extends Controller
 
     public function materials()
     {
-        $materials = LearningMaterial::all();
+        $materials = LearningMaterial::with(['myclass', 'subject'])->get();
         return view('pages.parent.materials.index', compact('materials'));
     }
+
+    public function download($id)
+    {
+        $material = LearningMaterial::findOrFail($id);
+
+        // Ubah ke folder materials
+        $filePath = 'public/materials/' . basename($material->file_path);
+
+        if (!Storage::exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        return Storage::download(
+            $filePath,
+            $material->title . '.' . pathinfo($material->file_path, PATHINFO_EXTENSION)
+        );
+    }
+
+
 
     public function events()
     {
